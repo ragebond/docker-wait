@@ -50,7 +50,7 @@ while getopts ":t:c:p:" opt; do
 done
 
 if [ -n "$PORTS" ]; then
-  ports=$(echo $PORTS | sed -e 's/,/ /g' -e 's/\s+/\n/g')
+  ports=$(echo "$PORTS"|tr , ' '|tr -s '[:space:]' '\n')
 fi
 
 # our target format is a newline-delimited list where each item is "host:ip"
@@ -87,7 +87,7 @@ if [ -z "$TARGETS" ]; then
     exit 1
   fi
 else
-  uris=$(echo $TARGETS | sed -e 's/,/ /g' -e 's/\s+/\n/g' | uniq)
+  uris=$(echo "$TARGETS"|tr , ' '|tr -s '[:space:]' '\n'|uniq)
 fi
 
 # wait for each target
