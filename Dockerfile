@@ -1,7 +1,7 @@
-FROM alpine:3.1
+FROM alpine:3.7
 MAINTAINER Martin van Beurden <chadoe@gmail.com>
 
-RUN apk add --update-cache grep sed netcat-openbsd && rm -rf /var/cache/apk/*
+RUN apk add --no-cache netcat-openbsd
 
 ADD wait /wait
 

@@ -23,10 +23,12 @@ while getopts ":t:c:p:" opt; do
     case $opt in
         t)
             timeout=$OPTARG
-            if ! echo "$timeout" | grep -qE ^[0-9]+$; then
-              echo "Invalid timeout number: $timeout" >&2
-              exit 1
-            fi
+            case $timeout in
+                ''|*[!0-9]*)
+                    echo "Invalid timeout number: $timeout" >&2
+                    exit 1
+                ;;
+            esac
             ;;
         c)
             TARGETS="$OPTARG"
@@ -50,13 +52,23 @@ while getopts ":t:c:p:" opt; do
 done
 
 if [ -n "$PORTS" ]; then
-  ports=$(echo $PORTS | sed -e 's/,/ /g' -e 's/\s+/\n/g')
+  ports=$(echo "$PORTS"|tr , ' '|tr -s '[:space:]' '\n')
 fi
 
 # our target format is a newline-delimited list where each item is "host:ip"
 if [ -z "$TARGETS" ]; then
   # empty TARGETS variable will default to checking all host/ports exposed
-  uris=$(env | grep _TCP= | cut -d= -f2 | cut -c7- )
+  uris=""
+  oldifs="$IFS"
+  IFS=$'\n'
+  for var in $(env); do
+    case "$var" in
+      *_TCP=*)
+        uris="$uris $(echo "$var" | cut -d= -f2 | cut -c7-)"
+      ;;
+    esac
+  done
+  IFS="$oldifs"
 
   if [ -n "$PORTS" ]; then
     urisinc=""
@@ -87,7 +99,7 @@ if [ -z "$TARGETS" ]; then
     exit 1
   fi
 else
-  uris=$(echo $TARGETS | sed -e 's/,/ /g' -e 's/\s+/\n/g' | uniq)
+  uris=$(echo "$TARGETS"|tr , ' '|tr -s '[:space:]' '\n'|uniq)
 fi
 
 # wait for each target
