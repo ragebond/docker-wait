@@ -1,5 +1,5 @@
 FROM alpine:3.7
-MAINTAINER Martin van Beurden <chadoe@gmail.com>
+MAINTAINER Ragebond <ragebond@yahoo.fr>
 
 RUN apk add --no-cache netcat-openbsd
 
